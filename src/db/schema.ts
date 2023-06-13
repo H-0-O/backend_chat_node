@@ -8,11 +8,16 @@ export const userSchema = new Schema<UserModelSchema>({
   userName: {
     required: true,
     type: String,
+    unique: true,
   },
   email: {
     required: true,
     type: String,
     unique: true,
+  },
+  password: {
+    required: true,
+    type: String,
   },
   UID: {
     type: Schema.Types.UUID,

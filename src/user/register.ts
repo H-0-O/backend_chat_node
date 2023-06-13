@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request } from "express";
 import { UserModel } from "../db/models";
 import {
   generateEmailValidationToken,
@@ -8,6 +8,7 @@ import { env } from "process";
 import { UserInfo } from "../interfaces/userInterface";
 import { sendEmailValidationTemp } from "../inc/sendEmail";
 import { filed, success } from "../inc/response";
+import { hashPassword, hashRememberToken } from "./common";
 
 export async function register(req: Request) {
   try {
@@ -17,6 +18,7 @@ export async function register(req: Request) {
       firstName: userInfo.firstName,
       email: userInfo.email,
       userName: userInfo.userName,
+      password: hashPassword(userInfo.password),
       activation: {
         token: validationToken,
       },
@@ -30,14 +32,14 @@ export async function register(req: Request) {
       return success(null);
     } else {
       return filed({
-        code: "11500",
+        code: 500,
         message: env.APP_DEBUG ? "" : "Email not sent for you please try later",
       });
     }
-  } catch (e) {
+  } catch (e: any) {
     return filed({
       code: "11500",
-      message: env.APP_DEBUG ? e : "app is busy please try later",
+      unAvailableFields: e.keyValue,
     });
   }
 }
@@ -59,7 +61,7 @@ export async function tokenValidation(req: Request) {
           sendAt: null,
           validateAt: Date(),
         },
-        rememberToken,
+        rememberToken: hashRememberToken(rememberToken),
       },
       {
         new: true,
@@ -71,7 +73,7 @@ export async function tokenValidation(req: Request) {
       });
     } else {
       return filed({
-        code: "11404",
+        code: 404,
         message: "token is invalid",
       });
     }

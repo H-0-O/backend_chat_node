@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import "dotenv/config";
 import { register, tokenValidation } from "../user/register";
-import { Hash, createHash, randomBytes, randomFill } from "crypto";
+import { login } from "../user/login";
 const httpServer = express();
 
 function serve() {
@@ -18,8 +18,11 @@ httpServer.get(
   }
 );
 // POST METHODS
-httpServer.post("/user", async (req: Request, res: Response) =>
+httpServer.post("/user/register", async (req: Request, res: Response) =>
   res.send(await register(req))
 );
+httpServer.post("/user/login", async (req: Request, res: Response) => {
+  res.send(await login(req));
+});
 
 export { serve };
