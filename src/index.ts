@@ -1,11 +1,11 @@
 import { connectToDB } from "./db/schema";
 import { serve } from "./router/httpServer";
-import { serveSocket } from "./router/socketServer";
-
+import "dotenv/config";
+import "./router/socketServer";
 async function main() {
   await connectToDB();
   serve();
-  serveSocket();
+  // runWebSocket();
 }
 
 main();

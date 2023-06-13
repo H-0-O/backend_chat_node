@@ -1,17 +1,13 @@
-import express from "express";
-import "dotenv/config";
+import { Server } from "socket.io";
+import { createServer } from "http";
+import { isAuthenticated } from "../middlewares/authentication";
+const port = parseInt(process.env.SOCKET_PORT ?? "2050");
 
-const socketServer = express();
+const httpServer = createServer();
+const socketServer = new Server(httpServer);
 
-function serveSocket() {
-  socketServer.listen(process.env.SOCKET_PORT, () => {
-    // console.log("socket app  is started");
-  });
-}
+socketServer.on("connection", (socket: any) => {});
 
-socketServer.get("/", (req, res) => {
-  console.log("in socket app");
-  res.send("ok socket");
-});
+socketServer.engine.use(isAuthenticated);
 
-export { serveSocket };
+httpServer.listen(port, "localhost");
