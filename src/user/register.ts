@@ -18,7 +18,11 @@ export async function register(req: Request) {
   try {
     const userInfo: UserInfo = req.body;
     const validationToken = generateEmailValidationToken();
-    if (await getUserByUserNamerOrEmail(userInfo)) return filed("test");
+    if (await getUserByUserNamerOrEmail(userInfo))
+      return filed({
+        code: 422,
+        message: "user name or email exists before",
+      });
     const newUser = new UserModel({
       firstName: userInfo.firstName,
       email: userInfo.email,
@@ -43,8 +47,8 @@ export async function register(req: Request) {
     }
   } catch (e: any) {
     return filed({
-      code: "11500",
-      ff: "test",
+      code: "500",
+      message: "email or user is registered",
       unAvailableFields: e.keyValue,
     });
   }
