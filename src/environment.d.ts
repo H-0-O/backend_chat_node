@@ -10,7 +10,8 @@ declare global {
       APP_DEBUG: boolean;
       APP_BASE_URL: string;
       PASSWORD_HASH_SALT_ROUNDS: number;
-      REMEMBER_TOKEN_HASH_SALT_ROUNDS: number;
+      REMEMBER_TOKEN_HASH_SALT_ROUNDS_MAX: string;
+      REMEMBER_TOKEN_HASH_SALT_ROUNDS_MIN: string;
       BASE_URL: string;
     }
   }

@@ -1,14 +1,18 @@
 import { Request } from "express";
 import { LoginInfoInterface } from "../interfaces/userInterface";
 import { UserModel } from "../db/models";
-import { checkHashPassword, hashRememberToken } from "./common";
+import {
+  checkHashPassword,
+  getUserByUserNamerOrEmail,
+  hashRememberToken,
+} from "./common";
 import { filed, success } from "../inc/response";
 import { generateRememberToken } from "../inc/tokenGenerator";
 import { env } from "process";
 
 export async function login(req: Request) {
   const loginInfo: LoginInfoInterface = req.body;
-  const user = await checkUserExists(loginInfo);
+  const user = await getUserByUserNamerOrEmail(loginInfo);
   try {
     if (user) {
       if (await isUserValid(user.id)) {
@@ -47,24 +51,6 @@ export async function login(req: Request) {
   }
 }
 
-async function checkUserExists(loginInfo: LoginInfoInterface) {
-  try {
-    const query = UserModel.findOne();
-    query.or([
-      {
-        userName: loginInfo.userName,
-      },
-      {
-        email: loginInfo.email,
-      },
-    ]);
-    query.select({ password: true });
-    return await query.exec();
-  } catch (e) {
-    return false;
-  }
-}
-
 async function isUserValid(id: string) {
   const user = await UserModel.findById(id)
     .select({
@@ -78,4 +64,7 @@ async function isUserValid(id: string) {
     return true;
   }
   return false;
+}
+function getUserByUserNamerOrEmailEX(loginInfo: LoginInfoInterface) {
+  throw new Error("Function not implemented.");
 }

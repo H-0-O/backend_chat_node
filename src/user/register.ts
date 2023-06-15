@@ -8,12 +8,17 @@ import { env } from "process";
 import { UserInfo } from "../interfaces/userInterface";
 import { sendEmailValidationTemp } from "../inc/sendEmail";
 import { filed, success } from "../inc/response";
-import { hashPassword, hashRememberToken } from "./common";
+import {
+  getUserByUserNamerOrEmail,
+  hashPassword,
+  hashRememberToken,
+} from "./common";
 
 export async function register(req: Request) {
   try {
     const userInfo: UserInfo = req.body;
     const validationToken = generateEmailValidationToken();
+    if (await getUserByUserNamerOrEmail(userInfo)) return filed("test");
     const newUser = new UserModel({
       firstName: userInfo.firstName,
       email: userInfo.email,
@@ -39,6 +44,7 @@ export async function register(req: Request) {
   } catch (e: any) {
     return filed({
       code: "11500",
+      ff: "test",
       unAvailableFields: e.keyValue,
     });
   }
@@ -53,21 +59,16 @@ export async function tokenValidation(req: Request) {
       },
     };
     const rememberToken = generateRememberToken();
-    const user = await UserModel.findOneAndUpdate(
-      query,
-      {
+    const user = await UserModel.findOne(query).select("id");
+    if (user) {
+      await user.updateOne({
         activation: {
           token: null,
           sendAt: null,
           validateAt: Date(),
         },
         rememberToken: hashRememberToken(rememberToken),
-      },
-      {
-        new: true,
-      }
-    );
-    if (user) {
+      });
       return success({
         rememberToken,
       });

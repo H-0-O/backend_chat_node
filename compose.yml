@@ -14,7 +14,14 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: 123
     restart: unless-stopped
     command: mongod --auth
-
+  # node:
+  #   image: node:18.16.0-bullseye
+  #   container_name: node_service
+  #   volumes:
+  #     - ./src:/src/
+  #   command: npx nodemon
+  #   ports:
+  #     - "3000-4000:3000-4000"
   # mongo-express:
   #   image: mongo-express
   #   container_name: mongo-express
