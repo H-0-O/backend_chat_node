@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { UserModel } from "../db/models";
+import UserModel from "../db/models/userModel";
 import {
   generateEmailValidationToken,
   generateRememberToken,
@@ -8,17 +8,14 @@ import { env } from "process";
 import { UserInfo } from "../interfaces/userInterface";
 import { sendEmailValidationTemp } from "../inc/sendEmail";
 import { filed, success } from "../inc/response";
-import {
-  getUserByUserNamerOrEmail,
-  hashPassword,
-  hashRememberToken,
-} from "./common";
+import { getUserByUserNameOrEmail } from "./common";
+import { hashTheVal } from "../inc/hashing";
 
 export async function register(req: Request) {
   try {
     const userInfo: UserInfo = req.body;
     const validationToken = generateEmailValidationToken();
-    if (await getUserByUserNamerOrEmail(userInfo))
+    if (await getUserByUserNameOrEmail(userInfo))
       return filed({
         code: 422,
         message: "user name or email exists before",
@@ -27,7 +24,7 @@ export async function register(req: Request) {
       firstName: userInfo.firstName,
       email: userInfo.email,
       userName: userInfo.userName,
-      password: hashPassword(userInfo.password),
+      password: await hashTheVal(userInfo.password),
       activation: {
         token: validationToken,
       },
@@ -63,7 +60,7 @@ export async function tokenValidation(req: Request) {
       },
     };
     const rememberToken = generateRememberToken();
-    const user = await UserModel.findOne(query).select("id");
+    const user = await UserModel.findOne(query).select(["id", "userName"]);
     if (user) {
       await user.updateOne({
         activation: {
@@ -71,10 +68,11 @@ export async function tokenValidation(req: Request) {
           sendAt: null,
           validateAt: Date(),
         },
-        rememberToken: hashRememberToken(rememberToken),
+        rememberToken: await hashTheVal(rememberToken),
       });
       return success({
-        rememberToken,
+        user_name: user.userName,
+        remember_token: rememberToken,
       });
     } else {
       return filed({

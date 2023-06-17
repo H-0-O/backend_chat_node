@@ -1,9 +1,8 @@
+import mongoose, { Model, Schema } from "mongoose";
+import { UserModelSchema } from "../../interfaces/userInterface";
 import { randomUUID } from "crypto";
-import mongoose from "mongoose";
-import { UserModelSchema } from "../interfaces/userInterface";
-const { Schema } = mongoose;
 
-export const userSchema = new Schema<UserModelSchema>({
+const userSchema = new Schema<UserModelSchema>({
   firstName: String,
   userName: {
     required: true,
@@ -39,15 +38,9 @@ export const userSchema = new Schema<UserModelSchema>({
   },
 });
 
-export async function connectToDB() {
-  await mongoose.connect(
-    "mongodb://chat_user:chat_123@localhost:27017/chat_backend"
-  );
-  //   const dbInstance = mongoose
-  //   .createConnection("mongodb://localhost:27017/chat_backend", {
-  //     user: "chat_user",
-  //     pass: "chat_123",
-  //     connectTimeoutMS: 20000,
-  //   })
-  //   .asPromise();
-}
+export const UserModel: Model<UserModelSchema> = mongoose.model(
+  "user",
+  userSchema
+);
+
+export default UserModel;
