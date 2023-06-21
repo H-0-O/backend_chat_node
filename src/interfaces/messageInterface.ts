@@ -21,5 +21,6 @@ export interface messageSchemaInterface {
 
 export interface messageUserInterface {
   text: string;
-  to: string;
+  receiverType: string;
+  receiver: string;
 }

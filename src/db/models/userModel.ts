@@ -22,7 +22,10 @@ const userSchema = new Schema<UserModelSchema>({
     type: Schema.Types.UUID,
     default: () => randomUUID(),
   },
-  rememberToken: String,
+  rememberToken: {
+    type: String,
+    unique: true,
+  },
   activation: {
     token: {
       type: String,
