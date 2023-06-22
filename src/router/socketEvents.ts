@@ -6,7 +6,7 @@ import {
 } from "../middlewares/authentication";
 import socketStore from "../middlewares/socketStore";
 import { io } from "./server";
-import roomStore from "../middlewares/roomStore";
+// import roomStore from "../middlewares/roomStore";
 
 // namespaces
 
@@ -19,12 +19,12 @@ export function socketEventRegister() {
   messaging.on("connection", async (socket) => {
     // socket.join("room1");
     socket.use(([event, ...args], next) => isValidReceiver(event, args, next));
-    socket.use(([event, ...args], next) =>
-      roomStore(event, args, messaging, socket, next)
-    );
+    // socket.use(([event, ...args], next) =>
+    //   roomStore(event, args, messaging, socket, next)
+    // );
     // TODO room creation must be complete
     socket.on("PTP", (data) => ptp(data, socket));
     // when connection drop delete socket id from ids
-    socket.on("disconnect", () => disconnect(socket));
+    // socket.on("disconnect", () => disconnect(socket));
   });
 }
