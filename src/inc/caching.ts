@@ -1,75 +1,88 @@
 import NodeCache, { Data } from "node-cache";
 import _ from "lodash";
 import {
+  RoomInterface,
   SocketClientsInterface,
-  SocketsInfoInterface,
 } from "../interfaces/cachingInterfaces";
+import { RoomTypes } from "../interfaces/roomDBSchema";
 
-const socketClients = new NodeCache();
-const rooms = new NodeCache();
-// const roomNames ;
-// export function setSocketId(userName: string, socketId: string): void {
-//   // store username and socketId for fast accessing in program
-//   socketsInfos.set<SocketsInfoInterface>(userName, {
-//     socketId,
-//   });
-// }
-
-// export function getUserSocketInfo(
-//   userName: string
-// ): SocketsInfoInterface | undefined {
-//   return socketsInfos.get(userName);
-// }
-
-// export function deleteSocketId(userName: string): void {
-//   socketsInfos.del(userName);
-// }
-
-// export function checkUser(userName: string): boolean {
-//   return socketsInfos.has(userName);
-// }
-// export function setRoomNameSocketInfo(
-//   roomName: string,
-//   userNames: string[]
-// ): void {
-//   _.forEach(userNames, (userName) => {
-//     const socketInfo: SocketsInfoInterface | undefined =
-//       socketsInfos.get(userName);
-//     socketsInfos.set<SocketsInfoInterface>(userName, {
-//       socketId: socketInfo?.socketId,
-//       roomName: roomName,
-//     });
-//   });
-// }
-// export function findRoomNameByRoomName(roomName: string) {
-//   const infos: Data = socketsInfos.data;
-//   return _.findKey<Data>(infos, (info) => info.v?.roomName === roomName);
-// }
-
-// export function getRoomName(userName: string) {
-//   const socketInfo: SocketsInfoInterface | undefined =
-//     socketsInfos.get(userName);
-//   return socketInfo?.roomName;
-// }
-
-// export function getSocketId(username: string) {
-//   const socketInfo: SocketsInfoInterface | undefined =
-//     socketsInfos.get(username);
-//   return socketInfo?.socketId;
-// }
+const clients = new NodeCache();
+const roomsMap = new NodeCache();
 
 export function addActiveSocketId(userName: string, socketId: string) {
-  const oldInfo = socketClients.get<SocketClientsInterface>(userName);
+  const oldInfo = clients.get<SocketClientsInterface>(userName);
   let newInfo = {
     ...oldInfo,
   };
   if (!oldInfo) {
     newInfo = {
       activeSocketIds: [],
-      activeRoomsIndex: [],
     };
   }
 
   newInfo?.activeSocketIds?.push(socketId);
-  return socketClients.set<SocketClientsInterface>(userName, newInfo);
+  return clients.set<SocketClientsInterface>(userName, newInfo);
+}
+
+export function checkUserOnline(userName: string): boolean {
+  return Boolean(clients.get(userName));
+}
+
+export function getActiveSocketIds(userName: string) {
+  return clients.get<SocketClientsInterface>(userName)?.activeSocketIds;
+}
+
+export function setNewRoomToRoomMap(
+  roomName: string,
+  roomType: RoomTypes,
+  users: string[]
+) {
+  let lastKey = roomsMap.keys().length;
+  lastKey = lastKey == 0 ? -1 : lastKey;
+  roomsMap.set<RoomInterface>(lastKey + 1, {
+    roomName,
+    roomType,
+    roomUsers: users,
+  });
+}
+
+export function findRoomNameByUserNames(
+  senderUserName: string,
+  receiverUserName: string
+) {
+  const obj = _.find(roomsMap.data, (value) =>
+    value.v.roomUsers.includes(senderUserName, receiverUserName)
+  );
+  return obj?.v.roomName ?? false;
+}
+
+export function findRoomNameByRoomName(roomName: string) {
+  const room = _.find(roomsMap.data, (value) => value.v.roomName === roomName);
+  return room;
+}
+
+export function removeAllPTPRoomsHaveTheUser(userName: string) {
+  _.forEach(roomsMap.data, (value, key) => {
+    value.v.roomType == RoomTypes.PTP &&
+      value.v.roomUsers.includes(userName) &&
+      roomsMap.del(key);
+  });
+}
+
+export function removeActiveSocketId(userName: string, socketId: string) {
+  const oldInfo = clients.get<SocketClientsInterface>(userName);
+  if (oldInfo?.activeSocketIds) {
+    const newActiveSockets = _.pull(oldInfo?.activeSocketIds, socketId);
+    oldInfo.activeSocketIds = newActiveSockets;
+    clients.set(userName, oldInfo);
+  }
+}
+
+export function checkRoom() {
+  _.forEach(roomsMap.data, (value, key) => {
+    // value.v.roomType == RoomTypes.PTP &&
+    //   value.v.roomUsers.includes(userName) &&
+    //   roomsMap.del(key);
+    console.log(value.v);
+  });
 }

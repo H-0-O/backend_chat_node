@@ -3,6 +3,7 @@ import UserModel from "../db/models/userModel";
 import { checkHash } from "../inc/hashing";
 import { messageUserInterface } from "../interfaces/messageInterface";
 import { FailureMiddleware } from "../inc/failureMiddleware";
+import { Socket } from "socket.io";
 
 export async function isAuthenticated(req: Request, res: Response, next: any) {
   try {
@@ -29,4 +30,12 @@ export async function isValidReceiver(
     userName: receiver,
   }).select({ id: true });
   if (user) return next();
+}
+
+export function socketIdCheck(
+  socket: Socket,
+  next: (err?: Error | undefined) => void
+) {
+  console.log(socket.id);
+  next();
 }

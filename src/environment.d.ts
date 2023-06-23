@@ -6,7 +6,7 @@ declare global {
       PORT?: string;
       PWD: string;
       SOCKET_PORT: string;
-      HTTP_PORT: number;
+      HTTP_PORT: string;
       APP_DEBUG: boolean;
       APP_BASE_URL: string;
       PASSWORD_HASH_SALT_ROUNDS: number;

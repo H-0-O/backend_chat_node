@@ -6,7 +6,7 @@ async function sendEmailValidation(
   validationToken: String,
   userInfo: UserInfo
 ): Promise<object> {
-  const port: number = parseInt(env.HTTP_PORT ?? "25");
+  const port = parseInt(env.HTTP_PORT ?? "25");
   const transporter = nodemailer.createTransport({
     port, // Postfix uses port 25
     host: "localhost",

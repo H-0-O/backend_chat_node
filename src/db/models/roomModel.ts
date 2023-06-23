@@ -1,5 +1,5 @@
 import { Schema, Model } from "mongoose";
-import { Room, RoomTypes } from "../../interfaces/rooms";
+import { Room, RoomTypes } from "../../interfaces/roomDBSchema";
 
 const roomSchema = new Schema<Room>({
   createdAt: {
